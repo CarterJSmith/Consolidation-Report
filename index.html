@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In-Memory File Uploader</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-layout">
+
+    <div class="app-card">
+        <header class="app-header">
+            <h1 class="title">Client-Side File Buffer</h1>
+            <p class="subtitle">Upload a file to view its metadata and content directly from browser memory.</p>
+        </header>
+
+        <!-- Large Upload Zone -->
+        <div id="drop-zone" class="upload-zone">
+            <input type="file" id="file-input" class="hidden-input">
+            <div class="upload-content">
+                <div class="icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                </div>
+                <div class="text-group">
+                    <p class="prompt-text">Click to upload or drag and drop</p>
+                    <p class="info-text">Maximum file size depends on your browser's available RAM</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Bar Placeholder -->
+        <div id="progress-container" class="progress-container hidden">
+            <div class="progress-info">
+                <span>Reading into memory...</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-track">
+                <div id="progress-bar" class="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Result Display Placeholder -->
+        <div id="result-area" class="result-area hidden">
+            <div class="metadata-container">
+                <h3 class="section-label">File System Metadata</h3>
+                <dl class="metadata-grid">
+                    <div class="meta-item accent-blue">
+                        <dt>File Name</dt>
+                        <dd id="meta-name"></dd>
+                    </div>
+                    <div class="meta-item">
+                        <dt>Buffer Size</dt>
+                        <dd id="meta-size"></dd>
+                    </div>
+                    <div class="meta-item">
+                        <dt>MIME Type</dt>
+                        <dd id="meta-type"></dd>
+                    </div>
+                    <div class="meta-item">
+                        <dt>Last Modified</dt>
+                        <dd id="meta-date"></dd>
+                    </div>
+                </dl>
+            </div>
+
+            <div id="preview-container" class="preview-container hidden">
+                <h3 class="section-label">Memory Preview</h3>
+                <img id="image-preview" class="image-preview" src="" alt="Preview">
+            </div>
+
+            <div class="status-banner">
+                <div class="status-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <p>Successfully allocated memory for <code id="buffer-type">ArrayBuffer</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log("Logic removed. Interface is now static.");
+    </script>
+</body>
+</html>

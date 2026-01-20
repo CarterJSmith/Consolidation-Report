@@ -1,0 +1,241 @@
+:root {
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --primary-soft: #eff6ff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-bg: #ecfdf5;
+            --success-text: #065f46;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Centering Logic */
+        .page-layout {
+            background-color: var(--bg-main);
+            font-family: system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        /* Container Scale */
+        .app-card {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 56rem; /* Equivalent to max-w-4xl */
+            padding: 3rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .app-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+        }
+
+        /* Large Upload Zone Styling */
+        .upload-zone {
+            border: 4px dashed var(--border-color);
+            border-radius: 1.5rem;
+            padding: 6rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .upload-zone:hover {
+            border-color: #93c5fd;
+            background-color: #fcfdfe;
+        }
+
+        .upload-zone.drop-zone--over {
+            border-color: var(--primary);
+            background-color: var(--primary-soft);
+            transform: scale(1.01);
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        .icon-wrapper {
+            background-color: var(--primary-soft);
+            color: var(--primary);
+            width: 5rem;
+            height: 5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .icon {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        .prompt-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .info-text {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        /* Progress States */
+        .progress-container {
+            margin-top: 2.5rem;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-track {
+            background-color: #f1f5f9;
+            border-radius: 9999px;
+            height: 0.75rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background-color: var(--primary);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        /* Results & Meta */
+        .result-area {
+            margin-top: 3rem;
+            animation: fadeIn 0.7s forwards;
+        }
+
+        .metadata-container {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 768px) {
+            .metadata-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .meta-item {
+            border-left: 4px solid var(--border-color);
+            padding-left: 1rem;
+        }
+
+        .meta-item.accent-blue {
+            border-left-color: var(--primary);
+        }
+
+        .meta-item dt {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .meta-item dd {
+            font-family: ui-monospace, monospace;
+            font-weight: 700;
+            margin-top: 0.25rem;
+            word-break: break-all;
+        }
+
+        .preview-container {
+            margin-top: 2rem;
+        }
+
+        .image-preview {
+            max-height: 24rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .status-banner {
+            background-color: var(--success-bg);
+            border: 1px solid #d1fae5;
+            color: var(--success-text);
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .status-icon {
+            background-color: #10b981;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+        }
+
+        #buffer-type {
+            font-weight: 900;
+            background-color: #d1fae5;
+            padding: 0 0.25rem;
+            border-radius: 0.25rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(1.5rem); }
+            to { opacity: 1; transform: translateY(0); }
+        }
