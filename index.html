@@ -6,14 +6,19 @@
     <title>In-Memory File Uploader</title>
     <link rel="stylesheet" href="style.css">
     <script src="generateReport.js" defer></script>
+    <!-- Sheetjs used for parsing excel files -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <!-- JSPdf used for pdf generation and auto table used for table generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 </head>
 <body class="page-layout">
 
     <div class="app-card">
         <header class="app-header">
-            <h1 class="title">Client-Side File Buffer</h1>
-            <p class="subtitle">Upload a file to view its metadata and content directly from browser memory.</p>
+            <h1 class="title">Consolidation Report</h1>
+            <p class="subtitle">Upload a file to generate a consolidated report for your warehouse.</p>
         </header>
 
         <!-- Large Upload Zone -->
@@ -27,12 +32,11 @@
                 </div>
                 <div class="text-group">
                     <p class="prompt-text">Click to upload or drag and drop</p>
-                    <p class="info-text">Maximum file size depends on your browser's available RAM</p>
+                    <!-- <p class="info-text">File is stored locally in memory</p> -->
                 </div>
             </div>
         </div>
 
-        <!-- Progress Bar Placeholder -->
         <div id="progress-container" class="progress-container hidden">
             <div class="progress-info">
                 <span>Reading into memory...</span>
@@ -43,33 +47,15 @@
             </div>
         </div>
 
-        <!-- Result Display Placeholder -->
         <div id="result-area" class="result-area hidden">
             <div class="metadata-container">
-                <h3 class="section-label">File System Metadata</h3>
+                <h3 class="section-label">Upload Complete</h3>
                 <dl class="metadata-grid">
                     <div class="meta-item accent-blue">
                         <dt>File Name</dt>
                         <dd id="meta-name"></dd>
                     </div>
-                    <div class="meta-item">
-                        <dt>Buffer Size</dt>
-                        <dd id="meta-size"></dd>
-                    </div>
-                    <div class="meta-item">
-                        <dt>MIME Type</dt>
-                        <dd id="meta-type"></dd>
-                    </div>
-                    <div class="meta-item">
-                        <dt>Last Modified</dt>
-                        <dd id="meta-date"></dd>
-                    </div>
                 </dl>
-            </div>
-
-            <div id="preview-container" class="preview-container hidden">
-                <h3 class="section-label">Memory Preview</h3>
-                <img id="image-preview" class="image-preview" src="" alt="Preview">
             </div>
 
             <div class="status-banner">
@@ -78,13 +64,19 @@
                       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                     </svg>
                 </div>
-                <p>Successfully allocated memory for <code id="buffer-type">ArrayBuffer</code>.</p>
+                <p>Successfully Uploaded.</p>
+            </div>
+            <div>
+                <div class="action-area" >
+                    <button type="button" class="btn" id="edit-button">Edit Report</button>
+                    <button type="button" class="btn" id="generate-button">Generate Report</button>
+                </div>
+            </div>
+
+            <div class="edit-report">
+                <!-- Placeholder for edit report values -->
             </div>
         </div>
     </div>
-
-    <script>
-        console.log("Logic removed. Interface is now static.");
-    </script>
 </body>
 </html>

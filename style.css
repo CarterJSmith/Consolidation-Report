@@ -15,9 +15,10 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-size: 1.25rem;
         }
 
-        /* Centering Logic */
+        /* pentering Logic */
         .page-layout {
             background-color: var(--bg-main);
             font-family: system-ui, -apple-system, sans-serif;
@@ -233,6 +234,31 @@
 
         .hidden {
             display: none;
+        }
+        .action-area {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            background: #4F588C;
+            border: 2px solid #1D2A73;
+            color: white;
+            border-radius: 50px;
+            padding: 10px 24px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: #F2F2F2;
+            color: black;
+
+            
         }
 
         @keyframes fadeIn {
