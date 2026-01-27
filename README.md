@@ -39,11 +39,13 @@ This program uses
 - Suggest Consolidation 
     - Current implementaion identifies items that can be consolidated but does not say if the potential locations have space or if they are full.
 
-# AI Use
-The focus of this assignment was developing javascript. The initial html and css were generated using "gemini 3 flash thinking".
+# AI Disclosure
+ChatGPT & Gemini were used during the development of this project as a learning and reference resource. AI assistance was primarily used to help explain JavaScript concepts, clarify logic and syntax, provide example patterns, and reference third-party libraries relevant to the project.
+
+The focus of this project was developing javascript code. The initial html and css were generated using "gemini 3 flash thinking".
 
 Promts included
 - Show me a website with a simple upload a file to memory with javascript. List the HTML and CSS styling in separate files and leave the logic empty in the JavaScript file.
 - Make the upload area look more professional and remove generate button.
 
-The initial git push for this project shows the stub of html, css. Small sytle changes have been made to the titles and text to better align with this project.
+The initial git push for this project shows the stub of html and css. Small sytle changes have been made to the titles and text to better align with this project.
