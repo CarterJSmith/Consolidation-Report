@@ -17,6 +17,11 @@ const ItemDict = {};
 const PhysicalAvailableDict = {};
 const consoldationMax = 3;
 
+// Constants for the column names in the Excel file
+  const ITEM = 'ItemID';
+  const LOCATION = 'WMSLocationID';
+  const PHYSICAL = 'Physical';
+
 // Metadata Display Elements
 const metaName = document.getElementById('meta-name');
 
@@ -128,7 +133,7 @@ function handleFile(file) {
 function processData(jsonData) {
 
   // Loop through each row in the parsed JSON data
-  jsonData.forEach(({Item, Location, Physical }) => {
+  jsonData.forEach(({[ITEM]: Item, [LOCATION]: Location, [PHYSICAL]: Physical }) => {
     if (!ItemDict[Item]) {
       ItemDict[Item] = [];
     }
