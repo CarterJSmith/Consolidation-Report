@@ -179,8 +179,11 @@ function generateReport() {
     });
   }
 
-  // Sorts the array by alphabetical orde
-  aisleConsolidation.sort((a,b) => String(a[0]).localeCompare(String(b[0])));
+  // Sorts the array by alphabetical order
+  // aisleConsolidation.sort((a,b) => String(a[0]).localeCompare(String(b[0])));
+
+  // This sorts by the current location alphabetically.
+  aisleConsolidation.sort((a, b) => a.currentLocation.localeCompare(b.currentLocation));
 
   console.log("Sorted Consolidated Data:", aisleConsolidation);
 
@@ -215,7 +218,7 @@ function downloadReport(aisleConsolidation) {
   });
 
   // Saves the pdf and starts download
-  doc.save("Consolidated Report.pdf");
+  doc.save("Consolidation Report.pdf");
 }
 
 generateReportBtn.addEventListener('click', () => {
