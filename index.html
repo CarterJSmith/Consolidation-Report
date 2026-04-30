@@ -78,5 +78,67 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Report Modal -->
+    <div id="edit-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Configure Report</h2>
+                <button class="modal-close" id="close-modal-icon">&times;</button>
+            </div>
+            
+            <div class="modal-body modal-grid">
+                <!-- Left Column: Dynamic & Scrollable -->
+                <div class="column-container">
+                    <h3 class="column-title">Included Aisles In Report</h3>
+                    
+                    <!-- Select All Toggle -->
+                    <div class="select-all-container">
+                        <label class="checkbox-item select-all-item">
+                            <input type="checkbox" id="select-all-sources">
+                            <span>Select All Sources</span>
+                        </label>
+                    </div>
+
+                    <div class="options-list scrollable-list" id="dynamic-list">
+                        <!-- Populated via JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Right Column: Static -->
+                <div class="column-container">
+                    <h3 class="column-title">Report Features</h3>
+                    <div class="options-list">
+                        <label class="checkbox-item">
+                            <input type="checkbox" checked id="opt-barcode">
+                            <span>Display Barcode</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" checked id="opt-inventory">
+                            <span>Detailed Inventory Breakdown</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="opt-financials">
+                            <span>Include Financial Projections</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" checked id="opt-charts">
+                            <span>Generate Charts & Graphs</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="opt-raw">
+                            <span>Append Raw Data Sheet</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-outline" id="cancel-edit">Cancel</button>
+                <button type="button" class="btn" id="save-edit">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
