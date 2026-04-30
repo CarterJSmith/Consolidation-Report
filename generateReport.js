@@ -20,7 +20,7 @@ const PhysicalAvailableDict = {};
 const locationSet = new Set();
 const pattern = /^\d{2}[a-zA-Z]{1}\d{2}$/;
 
-var consoldationMax = 3;
+const consoldationMax = 3;
 
 // Constants for the column names in the Excel file
 const ITEM = 'ItemID';
@@ -58,13 +58,13 @@ const selectedFeatures = {
 };
 
 // Update selectedFeatures when checkboxes change
+// currently not in use: future feature
 function updateSelectedFeatures() {
     selectedFeatures.barcode = optBarcode.checked;
     selectedFeatures.inventory = optInventory.checked;
     selectedFeatures.financials = optFinancials.checked;
     selectedFeatures.charts = optCharts.checked;
     selectedFeatures.raw = optRaw.checked;
-    console.log('Selected features:', selectedFeatures);
 }
 
 // Add event listeners to report feature checkboxes
@@ -132,7 +132,6 @@ function checkFileType(file) {
       const worksheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
       
-      console.log("Parsed Excel Data:", jsonData);
       processData(jsonData);
 
     } catch (err) {
@@ -207,9 +206,6 @@ function processData(jsonData) {
     // Check if the location matches the pattern and add to the set if it does
     addLocationIfValid(Location);
   });
-
-  console.log("Consolidated Data:", ItemDict);
-  console.log("Physical Data:", PhysicalAvailableDict);
 }
 
 function addLocationIfValid(location) {
@@ -374,7 +370,6 @@ editreportBtn.addEventListener('click', openModal);
                     selectedAisles.push(aisleNum);
                 }
             });
-            console.log('Selected aisles:', selectedAisles);
         }
 
         // Select All / Deselect All logic
@@ -384,12 +379,6 @@ editreportBtn.addEventListener('click', openModal);
                 cb.checked = e.target.checked;
             });
             updateSelectedAisles();
-        });
-
-        document.getElementById('generate-button').addEventListener('click', () => {
-            console.log("Generating report...");
-            console.log("Selected aisles:", selectedAisles);
-            console.log("Selected features:", selectedFeatures);
         });
 
 });
