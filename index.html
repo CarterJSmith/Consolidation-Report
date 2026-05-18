@@ -11,6 +11,7 @@
     <!-- JSPdf used for pdf generation and auto table used for table generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 
 </head>
 <body class="page-layout">
@@ -103,29 +104,21 @@
 
                 <!-- Right Column: Static -->
                  <!-- hidden for future development -->
-                <div class="column-container hidden">
+                <div class="column-container ">
                     <h3 class="column-title">Report Features</h3>
                     <div class="options-list">
-                        <label class="checkbox-item">
-                            <input type="checkbox" checked id="opt-barcode">
-                            <span>Display Barcode</span>
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" checked id="opt-inventory">
-                            <span>Detailed Inventory Breakdown</span>
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" id="opt-financials">
-                            <span>Include Financial Projections</span>
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" checked id="opt-charts">
-                            <span>Generate Charts & Graphs</span>
-                        </label>
-                        <label class="checkbox-item">
-                            <input type="checkbox" id="opt-raw">
-                            <span>Append Raw Data Sheet</span>
-                        </label>
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                            <label class="checkbox-item">
+                                <input type="checkbox" checked id="opt-barcode">
+                                <span>Display Barcode</span>
+                            </label>
+                            <input type="text" id="barcode-string-input" placeholder="ReceiveSA" style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 0.95rem;">
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
+                                <span style="font-weight: 700;">Consolidation Max</span>
+                                <input type="number" id="consolidation-input" min="1" value="3" style="width: 5rem; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 0.95rem;">
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>

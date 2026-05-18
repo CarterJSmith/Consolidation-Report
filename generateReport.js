@@ -20,7 +20,7 @@ const PhysicalAvailableDict = {};
 const locationSet = new Set();
 const aislePattern = /^(?:(\d{2})[a-zA-Z]\d{2}|([a-zA-Z])\d{2}[a-zA-Z])$/;
 
-const consoldationMax = 3;
+let CONSOLIDATION_INPUT = 3;
 var warehouseNumber;
 
 // Constants for the column names in the Excel file
@@ -43,37 +43,27 @@ const selectAllCheckbox = document.getElementById('select-all-sources');
 
 // Report Features Checkboxes
 const optBarcode = document.getElementById('opt-barcode');
-const optInventory = document.getElementById('opt-inventory');
-const optFinancials = document.getElementById('opt-financials');
-const optCharts = document.getElementById('opt-charts');
-const optRaw = document.getElementById('opt-raw');
+const barcodeStringInput = document.getElementById('barcode-string-input');
+const consolidationInput = document.getElementById('consolidation-input');
+
+// Barcode variables
+let barcodeString = 'ReceiveSA';
+let barcodeChecked = true;
 
 // Selected aisles and report features
 const selectedAisles = [];
 const selectedFeatures = {
-    barcode: true,
-    inventory: true,
-    financials: false,
-    charts: true,
-    raw: false
+    barcode: true
 };
 
 // Update selectedFeatures when checkboxes change
 // currently not in use: future feature
 function updateSelectedFeatures() {
     selectedFeatures.barcode = optBarcode.checked;
-    selectedFeatures.inventory = optInventory.checked;
-    selectedFeatures.financials = optFinancials.checked;
-    selectedFeatures.charts = optCharts.checked;
-    selectedFeatures.raw = optRaw.checked;
 }
 
 // Add event listeners to report feature checkboxes
 optBarcode.addEventListener('change', updateSelectedFeatures);
-optInventory.addEventListener('change', updateSelectedFeatures);
-optFinancials.addEventListener('change', updateSelectedFeatures);
-optCharts.addEventListener('change', updateSelectedFeatures);
-optRaw.addEventListener('change', updateSelectedFeatures);
 
 dropZone.addEventListener('dragover', (e) => {
     // Prevent default behavior to allow drop
@@ -213,15 +203,19 @@ function processData(jsonData) {
     // Check if the location matches the pattern and add to the set if it does
     addLocationIfValid(Location);
 
-    // Identifies warehouse
-    const lastItem = jsonData[jsonData.length - 1];
-    warehouseNumber = lastItem?.Zone?.includes("Applied filters:")
-      ? lastItem.Zone
-      : null;
+    try {
+          // Identifies warehouse
+          const lastItem = jsonData[jsonData.length - 1];
+          warehouseNumber = lastItem?.Zone?.includes("Applied filters:")
+            ? lastItem.Zone
+            : null;
+
+    } catch (err) {
+      console.error(`Error processing location "${Location}":`, err);
+    }
+
   });
 }
-
-
 
 function addLocationIfValid(location) {
 
@@ -241,20 +235,21 @@ function generateReport() {
   // Items that qualify for consolidation go into this array
   const aisleConsolidation = [];
 
-  // ConsolidationMax is defaut at 3. We loop through the PhysicalAvailableDict from consolidationMax to 1.
-  for (let i = consoldationMax; i >= 1; i--) {
+  // ConsolidationMax is default at 3. We loop through the PhysicalAvailableDict from consolidationInput to 1.
+  for (let i = CONSOLIDATION_INPUT; i >= 1; i--) {
     // For each item in the PhysicalAvailableDict for that item.
     PhysicalAvailableDict[i]?.forEach(({ Item, Location}) => {
       var currentLocation = Location;
 
       // Check if the current location's aisle is in the selected aisles.
-      if(selectedAisles.includes(currentLocation.substring(0, 2)) && locationSet.has(currentLocation))
+      if((selectedAisles.includes(currentLocation.substring(0, 2))|| selectedAisles.includes(currentLocation.substring(0, 1))) && locationSet.has(currentLocation))
       {
         ItemDict[Item].forEach(({ Location, Physical }) => {
           // If the location is different from the current location, it qualifies for consolidation.
           if (Location !== currentLocation) {
             aisleConsolidation.push({
-              currentLocation, 
+              currentLocation,
+              i, 
               Item,
               Location,
               Physical
@@ -276,26 +271,53 @@ function generateReport() {
 function downloadReport(aisleConsolidation) {
   // Creates a new jsPDF instance 
   const { jsPDF } = window.jspdf;
-  // Creates a new PDF document
   const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+
   // Define table headers for each page
-  const header = ["Current Location", "Item", "Potential Location", "Physical in Potential Location"];
+  const header = ["Current Location", "Current Quantity", "Item", "Potential Location", "Physical in Potential Location"];
+
+  // Build the barcode image if barcode display is enabled
+  let barcodeImageDataUrl = null;
+  if (barcodeChecked && barcodeString) {
+    const canvas = document.createElement('canvas');
+    JsBarcode(canvas, barcodeString, {
+      format: 'CODE128',
+      displayValue: false,
+      width: 0.9,
+      height: 14,
+      margin: 0
+    });
+    barcodeImageDataUrl = canvas.toDataURL('image/png');
+  }
+
+  const topMargin = 10;
+  const bottomMargin = 20;
+  const barcodeWidth = 70;
+  const barcodeHeight = 9;
 
   // Use autoTable plugin for tables
-  // .map takes the 2d array and maps each row to the correct format
   doc.autoTable({
     head: [header],
     body: aisleConsolidation.map(row => [
       row.currentLocation,
+      row.i,
       row.Item,
       row.Location,
       row.Physical
     ]),
-    startY: 20,
+    startY: topMargin,
+    margin: { top: topMargin, bottom: bottomMargin },
     theme: "striped",
     styles: { fontSize: 10 },
-    // fill color is RBG format. Text color is white (255)
-    headStyles: { fillColor: [41, 128, 185], textColor: 255 }
+    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+    didDrawPage: (data) => {
+      if (!barcodeImageDataUrl) return;
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const x = (pageWidth - barcodeWidth) / 2;
+      const y = pageHeight - bottomMargin + 8;
+      doc.addImage(barcodeImageDataUrl, 'PNG', x, y, barcodeWidth, barcodeHeight);
+    }
   });
 
   // Saves the pdf and starts download
@@ -306,9 +328,6 @@ generateReportBtn.addEventListener('click', () => {
   generateReport();
 
 });
-
-// editreportBtn.addEventListener('click', () => {
-// });
 
 editreportBtn.addEventListener('click', openModal);
 
@@ -333,6 +352,17 @@ editreportBtn.addEventListener('click', openModal);
         });
 
         saveEdit.addEventListener('click', () => {
+            // Save barcode settings
+            barcodeChecked = optBarcode.checked;
+            barcodeString = barcodeStringInput.value || 'ReceiveSA';
+            
+            // Save consolidation max settings
+            CONSOLIDATION_INPUT = Number(consolidationInput.value) || 3;
+            if (CONSOLIDATION_INPUT < 1) {
+                CONSOLIDATION_INPUT = 1;
+            }
+            consolidationInput.value = CONSOLIDATION_INPUT;
+            
             closeModal();
         });
 
@@ -349,9 +379,20 @@ editreportBtn.addEventListener('click', openModal);
 
         function populateLocationCheckboxes() {
             const locationData = Array.from(locationSet);
+            console.log("Unique locations extracted for checkboxes:", locationData);
+
+            var aisles = [];
+
+            //if location is letter first, substring is 1.
+            const letterMatch = locationData[0].match(/^[a-zA-Z]/);
+            if (letterMatch) {
+                aisles = [...new Set(locationData.map(loc => loc.substring(0, 1)))].sort();
+            }
+            else {
+              aisles = [...new Set(locationData.map(loc => loc.substring(0, 2)))].sort();
+            }
             
             // Extract unique aisle numbers (first 2 digits)
-            const aisles = [...new Set(locationData.map(loc => loc.substring(0, 2)))].sort();
             
             // Clear existing checkboxes
             dynamicList.innerHTML = '';
