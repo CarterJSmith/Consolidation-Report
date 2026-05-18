@@ -16,11 +16,12 @@ const editreportBtn = document.getElementById('edit-button');
 const ItemDict = {};
 const PhysicalAvailableDict = {};
 
-// Set to store unique locations that match the pattern 03A03, 17B12, etc. 
+// Enforces exact match of num,num,letter,num,num OR letter,num,num,letter
 const locationSet = new Set();
-const pattern = /^\d{2}[a-zA-Z]{1}\d{2}$/;
+const aislePattern = /^(?:(\d{2})[a-zA-Z]\d{2}|([a-zA-Z])\d{2}[a-zA-Z])$/;
 
 const consoldationMax = 3;
+var warehouseNumber;
 
 // Constants for the column names in the Excel file
 const ITEM = 'ItemID';
@@ -182,9 +183,15 @@ function handleFile(file) {
 
 // Process parsed data into two dictionaries. Number of Physical available locations is the key for one dictionary, Item is the key for the other.
 function processData(jsonData) {
+  console.log(jsonData);
 
   // Loop through each row in the parsed JSON data
   jsonData.forEach(({[ITEM]: Item, [LOCATION]: Location, [PHYSICAL]: Physical }) => {
+
+    if (!Item || !Location || !Physical) {
+      return;
+    }
+
     if (!ItemDict[Item]) {
       ItemDict[Item] = [];
     }
@@ -205,13 +212,27 @@ function processData(jsonData) {
 
     // Check if the location matches the pattern and add to the set if it does
     addLocationIfValid(Location);
+
+    // Identifies warehouse
+    const lastItem = jsonData[jsonData.length - 1];
+    warehouseNumber = lastItem?.Zone?.includes("Applied filters:")
+      ? lastItem.Zone
+      : null;
   });
 }
 
+
+
 function addLocationIfValid(location) {
-  if (pattern.test(location)) {
-    locationSet.add(location);
+
+  if (typeof location !== 'string') return;
+
+  const match = location.match(aislePattern);
+
+  if (match) {
+    locationSet.add(location.toUpperCase());
   }
+
 }
 
 // Identifies and consolidates items that can be moved to other locations based on physical availability.
@@ -227,7 +248,7 @@ function generateReport() {
       var currentLocation = Location;
 
       // Check if the current location's aisle is in the selected aisles.
-      if(selectedAisles.includes(currentLocation.substring(0, 2)))
+      if(selectedAisles.includes(currentLocation.substring(0, 2)) && locationSet.has(currentLocation))
       {
         ItemDict[Item].forEach(({ Location, Physical }) => {
           // If the location is different from the current location, it qualifies for consolidation.
