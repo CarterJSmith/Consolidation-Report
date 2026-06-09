@@ -173,7 +173,6 @@ function handleFile(file) {
 
 // Process parsed data into two dictionaries. Number of Physical available locations is the key for one dictionary, Item is the key for the other.
 function processData(jsonData) {
-  console.log(jsonData);
 
   // Loop through each row in the parsed JSON data
   jsonData.forEach(({[ITEM]: Item, [LOCATION]: Location, [PHYSICAL]: Physical }) => {
@@ -267,6 +266,7 @@ function generateReport() {
   downloadReport(aisleConsolidation);
   
 }
+
 
 function downloadReport(aisleConsolidation) {
   // Creates a new jsPDF instance 
@@ -379,7 +379,6 @@ editreportBtn.addEventListener('click', openModal);
 
         function populateLocationCheckboxes() {
             const locationData = Array.from(locationSet);
-            console.log("Unique locations extracted for checkboxes:", locationData);
 
             var aisles = [];
 
