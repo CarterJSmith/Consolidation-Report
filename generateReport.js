@@ -229,26 +229,28 @@ function addLocationIfValid(location) {
 }
 
 // Identifies and consolidates items that can be moved to other locations based on physical availability.
-// 
+//
 function generateReport() {
-  // Items that qualify for consolidation go into this array
-  const aisleConsolidation = [];
+  // Items that qualify for consolidation are grouped by current location.
+  const aisleConsolidation = new Map();
 
   // ConsolidationMax is default at 3. We loop through the PhysicalAvailableDict from consolidationInput to 1.
   for (let i = CONSOLIDATION_INPUT; i >= 1; i--) {
-    // For each item in the PhysicalAvailableDict for that item.
-    PhysicalAvailableDict[i]?.forEach(({ Item, Location}) => {
-      var currentLocation = Location;
+    PhysicalAvailableDict[i]?.forEach(({ Item, Location }) => {
+      const currentLocation = Location;
 
       // Check if the current location's aisle is in the selected aisles.
-      if((selectedAisles.includes(currentLocation.substring(0, 2))|| selectedAisles.includes(currentLocation.substring(0, 1))) && locationSet.has(currentLocation))
-      {
+      if ((selectedAisles.includes(currentLocation.substring(0, 2)) || selectedAisles.includes(currentLocation.substring(0, 1))) &&
+          locationSet.has(currentLocation)) {
         ItemDict[Item].forEach(({ Location, Physical }) => {
           // If the location is different from the current location, it qualifies for consolidation.
           if (Location !== currentLocation) {
-            aisleConsolidation.push({
-              currentLocation,
-              i, 
+            if (!aisleConsolidation.has(currentLocation)) {
+              aisleConsolidation.set(currentLocation, []);
+            }
+
+            aisleConsolidation.get(currentLocation).push({
+              i,
               Item,
               Location,
               Physical
@@ -260,11 +262,12 @@ function generateReport() {
   }
 
   // This sorts by the current location alphabetically.
-  aisleConsolidation.sort((a, b) => a.currentLocation.localeCompare(b.currentLocation));
+  const sortedAisleConsolidation = new Map(
+    [...aisleConsolidation.entries()].sort(([aLocation], [bLocation]) => aLocation.localeCompare(bLocation))
+  );
 
   // Downloads the report as a PDF
-  downloadReport(aisleConsolidation);
-  
+  downloadReport(sortedAisleConsolidation);
 }
 
 
@@ -296,16 +299,36 @@ function downloadReport(aisleConsolidation) {
   const barcodeWidth = 70;
   const barcodeHeight = 9;
 
+  const tableBody = [];
+
+  aisleConsolidation.forEach((rows, currentLocation) => {
+    if (!rows || rows.length === 0) return;
+
+    rows.sort((a, b) => {
+      if (a.Item !== b.Item) return a.Item.localeCompare(b.Item);
+      if (a.Location !== b.Location) return a.Location.localeCompare(b.Location);
+      if (a.Physical !== b.Physical) return String(a.Physical).localeCompare(String(b.Physical));
+      return 0;
+    });
+
+    let lastItem = null;
+    rows.forEach((row) => {
+      const repeatFields = row.Item === lastItem;
+      tableBody.push([
+        repeatFields ? '' : currentLocation,
+        repeatFields ? '' : row.i,
+        repeatFields ? '' : row.Item,
+        row.Location,
+        row.Physical
+      ]);
+      lastItem = row.Item;
+    });
+  });
+
   // Use autoTable plugin for tables
   doc.autoTable({
     head: [header],
-    body: aisleConsolidation.map(row => [
-      row.currentLocation,
-      row.i,
-      row.Item,
-      row.Location,
-      row.Physical
-    ]),
+    body: tableBody,
     startY: topMargin,
     margin: { top: topMargin, bottom: bottomMargin },
     theme: "striped",
@@ -315,7 +338,7 @@ function downloadReport(aisleConsolidation) {
       if (!barcodeImageDataUrl) return;
       const pageHeight = doc.internal.pageSize.getHeight();
       const x = (pageWidth - barcodeWidth) / 2;
-      const y = pageHeight - bottomMargin + 8;
+      const y = pageHeight - bottomMargin + 6;
       doc.addImage(barcodeImageDataUrl, 'PNG', x, y, barcodeWidth, barcodeHeight);
     }
   });
