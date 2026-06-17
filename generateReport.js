@@ -295,9 +295,10 @@ function downloadReport(aisleConsolidation) {
   }
 
   const topMargin = 10;
-  const bottomMargin = 20;
+  const bottomMargin = 36;
   const barcodeWidth = 70;
   const barcodeHeight = 9;
+  const barcodeBottomPadding = 24;
 
   const tableBody = [];
 
@@ -338,7 +339,7 @@ function downloadReport(aisleConsolidation) {
       if (!barcodeImageDataUrl) return;
       const pageHeight = doc.internal.pageSize.getHeight();
       const x = (pageWidth - barcodeWidth) / 2;
-      const y = pageHeight - bottomMargin + 6;
+      const y = pageHeight - barcodeBottomPadding - barcodeHeight;
       doc.addImage(barcodeImageDataUrl, 'PNG', x, y, barcodeWidth, barcodeHeight);
     }
   });
@@ -356,113 +357,113 @@ editreportBtn.addEventListener('click', openModal);
 
 // --- Modal Logic ---
 
-        function openModal() {
-            editModal.classList.remove('hidden');
-        }
+function openModal() {
+    editModal.classList.remove('hidden');
+}
 
-        function closeModal() {
-            editModal.classList.add('hidden');
-        }
+function closeModal() {
+    editModal.classList.add('hidden');
+}
 
-        editButton.addEventListener('click', openModal);
-        closeModalIcon.addEventListener('click', closeModal);
-        cancelEdit.addEventListener('click', closeModal);
+editButton.addEventListener('click', openModal);
+closeModalIcon.addEventListener('click', closeModal);
+cancelEdit.addEventListener('click', closeModal);
+
+editModal.addEventListener('click', (e) => {
+    if (e.target === editModal) {
+        closeModal();
+    }
+});
+
+saveEdit.addEventListener('click', () => {
+    // Save barcode settings
+    barcodeChecked = optBarcode.checked;
+    barcodeString = barcodeStringInput.value || 'ReceiveSA';
+    
+    // Save consolidation max settings
+    CONSOLIDATION_INPUT = Number(consolidationInput.value) || 3;
+    if (CONSOLIDATION_INPUT < 1) {
+        CONSOLIDATION_INPUT = 1;
+    }
+    consolidationInput.value = CONSOLIDATION_INPUT;
+    
+    closeModal();
+});
+
+// --- Populate the Left Column Automatically ---
+const dynamicList = document.getElementById('dynamic-list');
+
+function updateSelectAllState() {
+    const checkboxes = dynamicList.querySelectorAll('input[type="checkbox"]');
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    
+    selectAllCheckbox.checked = checkedCount === checkboxes.length;
+    selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+}
+
+function populateLocationCheckboxes() {
+    const locationData = Array.from(locationSet);
+
+    var aisles = [];
+
+    //if location is letter first, substring is 1.
+    const letterMatch = locationData[0].match(/^[a-zA-Z]/);
+    if (letterMatch) {
+        aisles = [...new Set(locationData.map(loc => loc.substring(0, 1)))].sort();
+    }
+    else {
+      aisles = [...new Set(locationData.map(loc => loc.substring(0, 2)))].sort();
+    }
+    
+    // Extract unique aisle numbers (first 2 digits)
+    
+    // Clear existing checkboxes
+    dynamicList.innerHTML = '';
+    
+    aisles.forEach((item, index) => {
+        const label = document.createElement('label');
+        label.className = 'checkbox-item';
+        const isChecked = item === '03';
+        label.innerHTML = `
+            <input type="checkbox" class="source-checkbox" id="zone-${index}" ${isChecked ? 'checked' : ''}>
+            <span>Aisle ${item}</span>
+        `;
         
-        editModal.addEventListener('click', (e) => {
-            if (e.target === editModal) {
-                closeModal();
-            }
-        });
-
-        saveEdit.addEventListener('click', () => {
-            // Save barcode settings
-            barcodeChecked = optBarcode.checked;
-            barcodeString = barcodeStringInput.value || 'ReceiveSA';
-            
-            // Save consolidation max settings
-            CONSOLIDATION_INPUT = Number(consolidationInput.value) || 3;
-            if (CONSOLIDATION_INPUT < 1) {
-                CONSOLIDATION_INPUT = 1;
-            }
-            consolidationInput.value = CONSOLIDATION_INPUT;
-            
-            closeModal();
-        });
-
-        // --- Populate the Left Column Automatically ---
-        const dynamicList = document.getElementById('dynamic-list');
-
-        function updateSelectAllState() {
-            const checkboxes = dynamicList.querySelectorAll('input[type="checkbox"]');
-            const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-            
-            selectAllCheckbox.checked = checkedCount === checkboxes.length;
-            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
-        }
-
-        function populateLocationCheckboxes() {
-            const locationData = Array.from(locationSet);
-
-            var aisles = [];
-
-            //if location is letter first, substring is 1.
-            const letterMatch = locationData[0].match(/^[a-zA-Z]/);
-            if (letterMatch) {
-                aisles = [...new Set(locationData.map(loc => loc.substring(0, 1)))].sort();
-            }
-            else {
-              aisles = [...new Set(locationData.map(loc => loc.substring(0, 2)))].sort();
-            }
-            
-            // Extract unique aisle numbers (first 2 digits)
-            
-            // Clear existing checkboxes
-            dynamicList.innerHTML = '';
-            
-            aisles.forEach((item, index) => {
-                const label = document.createElement('label');
-                label.className = 'checkbox-item';
-                const isChecked = item === '03';
-                label.innerHTML = `
-                    <input type="checkbox" class="source-checkbox" id="zone-${index}" ${isChecked ? 'checked' : ''}>
-                    <span>Aisle ${item}</span>
-                `;
-                
-                const checkbox = label.querySelector('input');
-                checkbox.addEventListener('change', () => {
-                    updateSelectAllState();
-                    updateSelectedAisles();
-                });
-                
-                if (isChecked) {
-                    selectedAisles.push(item);
-                }
-                
-                dynamicList.appendChild(label);
-            });
-
-            // Initialize state after populating
+        const checkbox = label.querySelector('input');
+        checkbox.addEventListener('change', () => {
             updateSelectAllState();
-        }
-
-        function updateSelectedAisles() {
-            selectedAisles.length = 0;
-            const checkboxes = dynamicList.querySelectorAll('.source-checkbox');
-            checkboxes.forEach((cb, index) => {
-                if (cb.checked) {
-                    const aisleNum = cb.nextElementSibling.textContent.replace('Aisle ', '');
-                    selectedAisles.push(aisleNum);
-                }
-            });
-        }
-
-        // Select All / Deselect All logic
-        selectAllCheckbox.addEventListener('change', (e) => {
-            const checkboxes = dynamicList.querySelectorAll('input[type="checkbox"]');
-            checkboxes.forEach(cb => {
-                cb.checked = e.target.checked;
-            });
             updateSelectedAisles();
         });
+        
+        if (isChecked) {
+            selectedAisles.push(item);
+        }
+        
+        dynamicList.appendChild(label);
+    });
+
+    // Initialize state after populating
+    updateSelectAllState();
+}
+
+function updateSelectedAisles() {
+    selectedAisles.length = 0;
+    const checkboxes = dynamicList.querySelectorAll('.source-checkbox');
+    checkboxes.forEach((cb, index) => {
+        if (cb.checked) {
+            const aisleNum = cb.nextElementSibling.textContent.replace('Aisle ', '');
+            selectedAisles.push(aisleNum);
+        }
+    });
+}
+
+// Select All / Deselect All logic
+selectAllCheckbox.addEventListener('change', (e) => {
+    const checkboxes = dynamicList.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        cb.checked = e.target.checked;
+    });
+    updateSelectedAisles();
+});
 
 });
