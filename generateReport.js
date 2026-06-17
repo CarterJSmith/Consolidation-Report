@@ -287,18 +287,18 @@ function downloadReport(aisleConsolidation) {
     JsBarcode(canvas, barcodeString, {
       format: 'CODE128',
       displayValue: false,
-      width: 0.9,
-      height: 14,
+      width: 2,
+      height: 60,
       margin: 0
     });
     barcodeImageDataUrl = canvas.toDataURL('image/png');
   }
 
   const topMargin = 10;
-  const bottomMargin = 36;
-  const barcodeWidth = 70;
-  const barcodeHeight = 9;
-  const barcodeBottomPadding = 24;
+  const bottomMargin = 26;
+  const barcodeWidth = 80;
+  const barcodeHeight = 14;
+  const barcodeBottomPadding = 4;
 
   const tableBody = [];
 
