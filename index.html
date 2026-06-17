@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>In-Memory File Uploader</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; object-src 'none'; base-uri 'none';">
+    <title>Consolidation Report</title>
     <link rel="stylesheet" href="style.css">
     <script src="generateReport.js" defer></script>
     <!-- Sheetjs used for parsing excel files -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <script src="vendor/xlsx.full.min.js"></script>
     <!-- JSPdf used for pdf generation and auto table used for table generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="vendor/jspdf.umd.min.js"></script>
+    <script src="vendor/jspdf.plugin.autotable.min.js"></script>
+    <script src="vendor/JsBarcode.all.min.js"></script>
 
 </head>
 <body class="page-layout">
