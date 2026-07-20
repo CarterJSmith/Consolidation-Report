@@ -18,7 +18,8 @@ const PhysicalAvailableDict = {};
 
 // Enforces exact match of num,num,letter,num,num OR letter,num,num,letter
 const locationSet = new Set();
-const aislePattern = /^(?:(\d{2})[a-zA-Z]\d{2}|([a-zA-Z])\d{2}[a-zA-Z])$/;
+// Groups: 1 = numeric aisle, 2 = letter level (03A07) | 3 = letter aisle, 4 = numeric level (A02C)
+const aislePattern = /^(?:(\d{2})([a-zA-Z])\d{2}|([a-zA-Z])(\d{2})[a-zA-Z])$/;
 
 let CONSOLIDATION_INPUT = 3;
 var warehouseNumber;
@@ -38,8 +39,9 @@ const closeModalIcon = document.getElementById('close-modal-icon');
 const cancelEdit = document.getElementById('cancel-edit');
 const saveEdit = document.getElementById('save-edit');
 
-// Select All Checkbox
+// Select All Checkboxes
 const selectAllCheckbox = document.getElementById('select-all-sources');
+const selectAllLevelsCheckbox = document.getElementById('select-all-levels');
 
 // Report Features Checkboxes
 const optBarcode = document.getElementById('opt-barcode');
@@ -50,8 +52,9 @@ const consolidationInput = document.getElementById('consolidation-input');
 let barcodeString = 'ReceiveSA';
 let barcodeChecked = true;
 
-// Selected aisles and report features
+// Selected aisles, levels and report features
 const selectedAisles = [];
+const selectedLevels = [];
 const selectedFeatures = {
     barcode: true
 };
@@ -164,8 +167,9 @@ function handleFile(file) {
       parseData(currentBuffer); 
       showCompletionScreen();
       
-      // Populate location checkboxes after data is processed
+      // Populate location and level checkboxes after data is processed
       populateLocationCheckboxes();
+      populateLevelCheckboxes();
   };
 
   reader.readAsArrayBuffer(file);
@@ -216,13 +220,24 @@ function processData(jsonData) {
   });
 }
 
+// Splits a location into its aisle and level. The level is always the second
+// sequence: 03A07 -> aisle 03, level A. A02C -> aisle A, level 02.
+function parseLocation(location) {
+
+  if (typeof location !== 'string') return null;
+
+  const match = location.toUpperCase().match(aislePattern);
+
+  if (!match) return null;
+
+  return match[1]
+    ? { aisle: match[1], level: match[2] }
+    : { aisle: match[3], level: match[4] };
+}
+
 function addLocationIfValid(location) {
 
-  if (typeof location !== 'string') return;
-
-  const match = location.match(aislePattern);
-
-  if (match) {
+  if (parseLocation(location)) {
     locationSet.add(location.toUpperCase());
   }
 
@@ -238,10 +253,13 @@ function generateReport() {
   for (let i = CONSOLIDATION_INPUT; i >= 1; i--) {
     PhysicalAvailableDict[i]?.forEach(({ Item, Location }) => {
       const currentLocation = Location;
+      const parsed = parseLocation(currentLocation);
 
-      // Check if the current location's aisle is in the selected aisles.
-      if ((selectedAisles.includes(currentLocation.substring(0, 2)) || selectedAisles.includes(currentLocation.substring(0, 1))) &&
-          locationSet.has(currentLocation)) {
+      // Check that the current location's aisle AND level are both selected.
+      if (parsed &&
+          selectedAisles.includes(parsed.aisle) &&
+          selectedLevels.includes(parsed.level) &&
+          locationSet.has(currentLocation.toUpperCase())) {
         ItemDict[Item].forEach(({ Location, Physical }) => {
           // If the location is different from the current location, it qualifies for consolidation.
           if (Location !== currentLocation) {
@@ -392,6 +410,7 @@ saveEdit.addEventListener('click', () => {
 
 // --- Populate the Left Column Automatically ---
 const dynamicList = document.getElementById('dynamic-list');
+const levelsList = document.getElementById('levels-list');
 
 function updateSelectAllState() {
     const checkboxes = dynamicList.querySelectorAll('input[type="checkbox"]');
@@ -446,6 +465,59 @@ function populateLocationCheckboxes() {
     updateSelectAllState();
 }
 
+function updateSelectAllLevelsState() {
+    const checkboxes = levelsList.querySelectorAll('input[type="checkbox"]');
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+
+    selectAllLevelsCheckbox.checked = checkedCount === checkboxes.length;
+    selectAllLevelsCheckbox.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+}
+
+function populateLevelCheckboxes() {
+    const levels = [...new Set(
+        Array.from(locationSet)
+            .map(loc => parseLocation(loc)?.level)
+            .filter(Boolean)
+    )].sort();
+
+    // Clear existing checkboxes
+    levelsList.innerHTML = '';
+    selectedLevels.length = 0;
+
+    levels.forEach((level, index) => {
+        const label = document.createElement('label');
+        label.className = 'checkbox-item';
+        label.innerHTML = `
+            <input type="checkbox" class="level-checkbox" id="level-${index}" checked>
+            <span>Level ${level}</span>
+        `;
+
+        const checkbox = label.querySelector('input');
+        checkbox.addEventListener('change', () => {
+            updateSelectAllLevelsState();
+            updateSelectedLevels();
+        });
+
+        // All levels start selected so the report is unfiltered by default.
+        selectedLevels.push(level);
+
+        levelsList.appendChild(label);
+    });
+
+    // Initialize state after populating
+    updateSelectAllLevelsState();
+}
+
+function updateSelectedLevels() {
+    selectedLevels.length = 0;
+    const checkboxes = levelsList.querySelectorAll('.level-checkbox');
+    checkboxes.forEach((cb) => {
+        if (cb.checked) {
+            selectedLevels.push(cb.nextElementSibling.textContent.replace('Level ', ''));
+        }
+    });
+}
+
 function updateSelectedAisles() {
     selectedAisles.length = 0;
     const checkboxes = dynamicList.querySelectorAll('.source-checkbox');
@@ -464,6 +536,14 @@ selectAllCheckbox.addEventListener('change', (e) => {
         cb.checked = e.target.checked;
     });
     updateSelectedAisles();
+});
+
+selectAllLevelsCheckbox.addEventListener('change', (e) => {
+    const checkboxes = levelsList.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        cb.checked = e.target.checked;
+    });
+    updateSelectedLevels();
 });
 
 });
